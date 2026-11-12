@@ -69,3 +69,14 @@ recording shows:
 
 `{ session, step: 2, productReceipt, url, report, videoLink }` — plus `replay` (what the replay printed)
 when you ran it on your machine instead of GitHub.
+
+## How this repo ships (added)
+
+- `ci/build.sh` copies `app/` to `dist/` and stamps the commit sha into `<meta name="build">` and the footer (R6).
+- `.github/workflows/ship.yml`: a push to `main` deploys `dist/` to https://sched-prod-board.mortoni-alan.workers.dev
+  (Cloudflare Workers static assets) and checks the live page names that sha. A push to `rec/<name>` records the
+  live board with `record/record.mjs` (Playwright, real Chromium), keeps the video on the `recordings` branch and
+  serves it at `/rec/<name>.mp4`. Each run writes its result to the `ship-report` branch.
+- `test/board.test.mjs` checks R1-R6 and the hooks against a mocked API: `npm run build && npx serve dist`, then
+  `node test/board.test.mjs http://localhost:3000/ $(git rev-parse HEAD)`.
+- `.github/workflows/prove.yml` is the course's, unchanged.

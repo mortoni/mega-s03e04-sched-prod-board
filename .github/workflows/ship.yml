@@ -1,0 +1,122 @@
+name: ship
+
+# push to main      -> build app/ stamped with the commit sha, deploy to workers.dev, smoke the live build.
+# push to rec/<name> -> record the LIVE board in a real browser (record/record.mjs, record/request.json),
+#                       keep the video on the `recordings` branch, redeploy main with it under /rec/.
+# Every run writes what happened to the `ship-report` branch (report.md + the recorder log), so it can be read with git alone.
+
+on:
+  push:
+    branches: [main, 'rec/**']
+  workflow_dispatch: {}
+
+concurrency:
+  group: ship
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  LIVE: https://sched-prod-board.mortoni-alan.workers.dev
+
+jobs:
+  ship:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main
+
+      - name: checkout this push
+        if: startsWith(github.ref, 'refs/heads/rec/')
+        uses: actions/checkout@v4
+        with:
+          path: req
+
+      - name: checkout recordings
+        id: recs
+        run: |
+          if git ls-remote --exit-code "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/recordings >/dev/null; then
+            git clone -q --depth 1 -b recordings "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" recordings
+          else
+            mkdir recordings && cd recordings && git init -q -b recordings
+            git remote add origin "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git"
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: record the live board
+        id: record
+        if: startsWith(github.ref, 'refs/heads/rec/')
+        working-directory: req
+        run: |
+          name=$(jq -r .name record/request.json); mode=$(jq -r .mode record/request.json)
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          npm install --no-audit --no-fund playwright@1.64.1 > /dev/null
+          npx playwright install --with-deps chromium ffmpeg > /dev/null
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          node record/record.mjs "$LIVE/" "out/$name" --mode "$mode" | tee "out-$name.txt"
+          ffmpeg -loglevel error -y -i "out/$name/raw.webm" -c:v libx264 -preset veryfast -crf 23 -pix_fmt yuv420p -movflags +faststart "out/$name/$name.mp4"
+          mkdir -p ../recordings/rec
+          cp "out/$name/$name.mp4" ../recordings/rec/
+          cp "out/$name/log.json" "../recordings/rec/$name.log.json"
+          [ -f "out/$name/moment.json" ] && cp "out/$name/moment.json" "../recordings/rec/$name.moment.json" || true
+          cd ../recordings && git add rec
+          git -c user.name=recorder -c user.email=recorder@users.noreply.github.com commit -qm "recording $name of $(jq -r .sha "rec/$name.log.json")"
+          git push -q origin HEAD:recordings
+
+      - name: build
+        run: |
+          sha=$(git -C main rev-parse HEAD); echo "SHA=$sha" >> "$GITHUB_ENV"
+          main/ci/build.sh main/app "$sha" recordings main/dist
+
+      - name: deploy
+        id: deploy
+        working-directory: main
+        run: npx --yes wrangler@4 deploy 2>&1 | tee ../deploy.log
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: smoke
+        id: smoke
+        run: |
+          vids=$(cd recordings && ls rec/*.mp4 2>/dev/null | tr '\n' ' ')
+          main/ci/smoke.sh "$LIVE" "$SHA" $vids | tee smoke.txt
+
+      - name: publish report
+        if: always()
+        env:
+          REF: ${{ github.ref_name }}
+          RECORD: ${{ steps.record.outcome }}
+          DEPLOY: ${{ steps.deploy.outcome }}
+          SMOKE: ${{ steps.smoke.outcome }}
+          NAME: ${{ steps.record.outputs.name }}
+        run: |
+          mkdir -p /tmp/r && cd /tmp/r && git init -q -b ship-report
+          {
+            echo "run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "ref: $REF ($GITHUB_SHA)"
+            echo "main sha: ${SHA:-?}"
+            echo "record: ${RECORD:-skipped} ${NAME}"
+            echo "deploy: $DEPLOY"
+            echo "smoke: $SMOKE"
+            echo "live: $LIVE"
+            echo; echo '## smoke'; cat "$GITHUB_WORKSPACE/smoke.txt" 2>/dev/null
+            echo; echo '## recorder'; cat "$GITHUB_WORKSPACE/req/out-$NAME.txt" 2>/dev/null
+            echo; echo '## deploy log (tail)'; tail -n 30 "$GITHUB_WORKSPACE/deploy.log" 2>/dev/null
+          } > report.md
+          [ -n "$NAME" ] && cp "$GITHUB_WORKSPACE/req/out/$NAME/log.json" "$NAME.log.json" 2>/dev/null || true
+          git add -A
+          git -c user.name=ship -c user.email=ship@users.noreply.github.com commit -qm "report $GITHUB_SHA"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ship-report
