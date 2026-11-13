@@ -1,0 +1,111 @@
+{
+  "url": "https://sched-prod-board.mortoni-alan.workers.dev/",
+  "mode": "step2",
+  "t0": "2026-11-13T04:33:31.233Z",
+  "sha": "64a76d7f45ec9eecf98d10a9dc3cfc6cc5045160",
+  "footerSha": "64a76d7f45ec9eecf98d10a9dc3cfc6cc5045160",
+  "events": [
+    {
+      "at": "00:00",
+      "ms": 43,
+      "what": "open-board: goto",
+      "url": "https://sched-prod-board.mortoni-alan.workers.dev/"
+    },
+    {
+      "at": "00:00",
+      "ms": 289,
+      "what": "loader visible",
+      "loaderSeen": true
+    },
+    {
+      "at": "00:01",
+      "ms": 1084,
+      "what": "incidents on screen, loader gone",
+      "rows": 8,
+      "sha": "64a76d7f45ec9eecf98d10a9dc3cfc6cc5045160",
+      "footerSha": "64a76d7f45ec9eecf98d10a9dc3cfc6cc5045160"
+    },
+    {
+      "at": "00:10",
+      "ms": 10930,
+      "what": "watch-board: new incident on top without reload",
+      "before": "INC-1332",
+      "now": "INC-4352"
+    },
+    {
+      "at": "00:13",
+      "ms": 13859,
+      "what": "ack-incident: pointer on Ack",
+      "aimed": "INC-9173"
+    },
+    {
+      "at": "00:20",
+      "ms": 20895,
+      "what": "refresh inserts a new incident on top; rows move down under the pointer",
+      "before": "INC-4352",
+      "now": "INC-6103"
+    },
+    {
+      "at": "00:21",
+      "ms": 21146,
+      "what": "ack-incident: click, pointer never moved",
+      "aimed": "INC-9173"
+    },
+    {
+      "at": "00:21",
+      "ms": 21158,
+      "what": "confirm opens and names the row the click landed on",
+      "confirm": "Ack INC-7471? booking-api · ap-southeast · webhook retries piling up Cancel Ack",
+      "aimed": "INC-9173",
+      "rowThatSlidUnder": "INC-7471"
+    },
+    {
+      "at": "00:25",
+      "ms": 25074,
+      "what": "cancelled: no ack sent",
+      "acksSent": 0,
+      "acked": []
+    },
+    {
+      "at": "00:27",
+      "ms": 27800,
+      "what": "confirm names the intended incident",
+      "confirm": "Ack INC-9173? studio-search · ap-southeast · export job stuck in queue Cancel Ack",
+      "aimed": "INC-9173"
+    },
+    {
+      "at": "00:30",
+      "ms": 30225,
+      "what": "confirm-ack clicked",
+      "aimed": "INC-9173"
+    },
+    {
+      "at": "00:30",
+      "ms": 30263,
+      "what": "acked as aimed",
+      "aimed": "INC-9173",
+      "acked": [
+        "INC-9173"
+      ],
+      "ack": {
+        "at": "00:30",
+        "id": "INC-9173",
+        "ackedAt": "2026-11-13T04:34:01.472Z",
+        "receipt": "a1.D96pZtjA5gaBAsaf.M9SgC_GyDa-6Rz-zGmmIGTAFS90lc_b-dWvi2UyGUz1LI9IH1DOcGi-Xbt9kS_EFB7yQ3EMmVZZtdx75mCZuC3YInjzGrDeW3W1_kjZry4CAldC2hPtSCSKs8rUN_Rym2qxq6nSk-_Au3_NQMEgnX72xwlJC8bc0FqtB12wDPtgKLvKklygrFpaFn6pPxNzbU2g"
+      }
+    },
+    {
+      "at": "00:34",
+      "ms": 34765,
+      "what": "end"
+    }
+  ],
+  "acks": [
+    {
+      "at": "00:30",
+      "id": "INC-9173",
+      "ackedAt": "2026-11-13T04:34:01.472Z",
+      "receipt": "a1.D96pZtjA5gaBAsaf.M9SgC_GyDa-6Rz-zGmmIGTAFS90lc_b-dWvi2UyGUz1LI9IH1DOcGi-Xbt9kS_EFB7yQ3EMmVZZtdx75mCZuC3YInjzGrDeW3W1_kjZry4CAldC2hPtSCSKs8rUN_Rym2qxq6nSk-_Au3_NQMEgnX72xwlJC8bc0FqtB12wDPtgKLvKklygrFpaFn6pPxNzbU2g"
+    }
+  ]
+}
