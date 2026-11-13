@@ -1,0 +1,102 @@
+{
+  "url": "https://sched-prod-board.mortoni-alan.workers.dev/",
+  "mode": "step1",
+  "t0": "2026-11-13T04:19:59.019Z",
+  "sha": "ac0fcb0671bf1bb6d936c643fc1e23b194f3c354",
+  "footerSha": "ac0fcb0671bf1bb6d936c643fc1e23b194f3c354",
+  "events": [
+    {
+      "at": "00:00",
+      "ms": 62,
+      "what": "open-board: goto",
+      "url": "https://sched-prod-board.mortoni-alan.workers.dev/"
+    },
+    {
+      "at": "00:00",
+      "ms": 314,
+      "what": "loader visible",
+      "loaderSeen": true
+    },
+    {
+      "at": "00:01",
+      "ms": 1625,
+      "what": "incidents on screen, loader gone",
+      "rows": 8,
+      "sha": "ac0fcb0671bf1bb6d936c643fc1e23b194f3c354",
+      "footerSha": "ac0fcb0671bf1bb6d936c643fc1e23b194f3c354"
+    },
+    {
+      "at": "00:11",
+      "ms": 11254,
+      "what": "watch-board: new incident on top without reload",
+      "before": "INC-1332",
+      "now": "INC-4352"
+    },
+    {
+      "at": "00:14",
+      "ms": 14579,
+      "what": "ack-incident (calm): click",
+      "aimed": "INC-3759",
+      "x": 945.53125,
+      "y": 201.796875
+    },
+    {
+      "at": "00:14",
+      "ms": 14666,
+      "what": "ack-incident (calm): acked",
+      "acked": "INC-3759"
+    },
+    {
+      "at": "00:17",
+      "ms": 17580,
+      "what": "ack-incident (moving list): pointer on Ack",
+      "aimed": "INC-3881",
+      "x": 945.53125,
+      "y": 381.796875
+    },
+    {
+      "at": "00:21",
+      "ms": 21267,
+      "what": "refresh inserts a new incident on top; rows move down under the pointer",
+      "before": "INC-4352",
+      "now": "INC-6103"
+    },
+    {
+      "at": "00:21",
+      "ms": 21522,
+      "what": "ack-incident (moving list): click, pointer never moved",
+      "aimed": "INC-3881",
+      "x": 945.53125,
+      "y": 381.796875
+    },
+    {
+      "at": "00:21",
+      "ms": 21568,
+      "what": "ack-incident (moving list): acked",
+      "aimed": "INC-3881",
+      "acked": [
+        "INC-9173"
+      ],
+      "rowThatSlidUnder": "INC-9173"
+    },
+    {
+      "at": "00:26",
+      "ms": 26571,
+      "what": "end"
+    }
+  ],
+  "acks": [
+    {
+      "at": "00:14",
+      "id": "INC-3759",
+      "ackedAt": "2026-11-13T04:20:13.615Z",
+      "receipt": "a1.GLYy_LNhVhNaZcPE.063iIBFIsXsHxxEGsDcnQFpn-TwFe0INms8glO5sNYanZ9vyTCt_MexOqa31Dyl2mrfUcwV7lS1Xr3ZkRLB1QtffGnwlFMJcl8bbVS3U2xKTSqwJ4IWbIQTeciWMNctC2yYaqDRn9nV7y56qUdpRA0BdEFn3eWqnkbB-aguUfklcuplW8Q1T7wKyJ3IOGeSe7A"
+    },
+    {
+      "at": "00:21",
+      "id": "INC-9173",
+      "ackedAt": "2026-11-13T04:20:20.556Z",
+      "receipt": "a1.J7uAxGxk51W-DBST.Zi5T3_fpkGX2HC4DWjHILsihGVKWJJ-N7aIK3NlNAo-loV54T-4zL2b5c4hQuzHUXr8Ep7InRuEsV8LXZ6tpJfpVbU-ormZbbYssKtpN7gJwN9ZwI4teYHzX28SlPywRbCleLx1v9_Ia2rOPSFFLAHtfQy6kCxEbkOW4bQpC2DkWJZ01Zgg_OjRREF43AB7YWXk"
+    }
+  ]
+}
