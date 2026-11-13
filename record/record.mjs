@@ -153,7 +153,7 @@ if (mode === 'step1') {
 } else {
   // step2 flows are written after product's answer
   const mod = await import(process.env.STEP2_FLOW || './step2.mjs');
-  await mod.default({ page, note, cap, waitForArrival, ackBox, ackedIn, glide, acks });
+  await mod.default({ page, note, cap, waitForArrival, ackBox, ackedIn, glide, acks, outDir });
 }
 
 await page.waitForTimeout(1000);
