@@ -44,7 +44,7 @@ jobs:
       - name: checkout recordings
         id: recs
         run: |
-          if git ls-remote --exit-code "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/recordings >/dev/null; then
+          if git ls-remote --exit-code "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" refs/heads/recordings >/dev/null; then
             git clone -q --depth 1 -b recordings "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" recordings
           else
             mkdir recordings && cd recordings && git init -q -b recordings
@@ -91,7 +91,7 @@ jobs:
       - name: smoke
         id: smoke
         run: |
-          vids=$(cd recordings && ls rec/*.mp4 2>/dev/null | tr '\n' ' ')
+          vids=$(cd recordings && ls rec/*.mp4 2>/dev/null | tr '\n' ' ' || true)
           main/ci/smoke.sh "$LIVE" "$SHA" $vids | tee smoke.txt
 
       - name: publish report
@@ -103,6 +103,7 @@ jobs:
           SMOKE: ${{ steps.smoke.outcome }}
           NAME: ${{ steps.record.outputs.name }}
         run: |
+          set +e
           mkdir -p /tmp/r && cd /tmp/r && git init -q -b ship-report
           {
             echo "run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
