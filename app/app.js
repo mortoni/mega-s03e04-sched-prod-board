@@ -45,11 +45,35 @@ function markAcked(li, reply) {
     `<span data-testid="acked" class="acked" title="receipt ${esc(reply.receipt)}">✓ acked ${esc(localTime(reply.ackedAt))}</span>`;
 }
 
-list.addEventListener('click', async (e) => {
-  const btn = e.target.closest('[data-testid="ack"]');
-  if (!btn) return;
-  const li = btn.closest('[data-testid="incident-row"]');
+// Product's decision on SCHED-4515: Ack asks to confirm, and the confirm names the incident id.
+// The id is taken from the row the click landed on, at click time; the confirm sits in a fixed overlay,
+// so refreshes that move rows while it is open cannot change what it acks.
+const confirmBox = document.querySelector('[data-testid="confirm"]');
+const confirmText = confirmBox.querySelector('[data-role="confirm-text"]');
+const confirmWhat = confirmBox.querySelector('[data-role="confirm-what"]');
+const confirmAck = confirmBox.querySelector('[data-testid="confirm-ack"]');
+const confirmCancel = confirmBox.querySelector('[data-testid="confirm-cancel"]');
+let pending = null; // { id, li }
+
+function openConfirm(li) {
   const id = li.dataset.id;
+  pending = { id, li };
+  confirmText.textContent = `Ack ${id}?`;
+  confirmWhat.textContent = li.querySelector('.what').textContent;
+  confirmBox.dataset.id = id;
+  confirmBox.hidden = false;
+  confirmAck.focus();
+}
+
+function closeConfirm() {
+  pending = null;
+  confirmBox.hidden = true;
+  delete confirmBox.dataset.id;
+}
+
+async function sendAck({ id, li }) {
+  const btn = li.querySelector('[data-testid="ack"]');
+  if (!btn) return;
   btn.disabled = true;
   btn.textContent = 'Acking…';
   try {
@@ -61,6 +85,24 @@ list.addEventListener('click', async (e) => {
     btn.textContent = 'Ack';
     showError(`Ack failed for ${id}: ${err.message}`);
   }
+}
+
+list.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-testid="ack"]');
+  if (!btn || btn.disabled) return;
+  openConfirm(btn.closest('[data-testid="incident-row"]'));
+});
+confirmAck.addEventListener('click', () => {
+  const p = pending;
+  closeConfirm();
+  if (p) sendAck(p);
+});
+confirmCancel.addEventListener('click', closeConfirm);
+confirmBox.addEventListener('click', (e) => {
+  if (e.target === confirmBox) closeConfirm(); // a click on the backdrop cancels
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && pending) closeConfirm();
 });
 
 function showError(msg) {
@@ -68,30 +110,25 @@ function showError(msg) {
   errorBox.hidden = !msg;
 }
 
-/** Make the list match the page: newest first, existing rows reused, new rows in place (R1). */
+/**
+ * Add what is new, in the page's order (newest first, R1). A row already on the board is never moved or
+ * taken off by a refresh: only new rows are inserted, so the rows under the pointer change only by an arrival.
+ */
 function render(incidents) {
-  const sorted = [...incidents].sort((a, b) => Date.parse(b.openedAt) - Date.parse(a.openedAt));
-  const ids = new Set(sorted.map((i) => i.id));
-  for (const [id, li] of rows) {
-    if (!ids.has(id)) {
-      li.remove();
-      rows.delete(id);
-    }
-  }
-  let prev = null;
-  for (const i of sorted) {
+  let next = null; // the row that follows, in page order
+  for (let k = incidents.length - 1; k >= 0; k--) {
+    const i = incidents[k];
     let li = rows.get(i.id);
     if (!li) {
       li = rowFor(i);
       rows.set(i.id, li);
       if (acked.has(i.id)) markAcked(li, acked.get(i.id));
+      list.insertBefore(li, next); // next === null: append
     }
-    const want = prev ? prev.nextSibling : list.firstChild;
-    if (li !== want) list.insertBefore(li, want);
-    prev = li;
+    next = li;
   }
-  list.hidden = sorted.length === 0;
-  empty.hidden = sorted.length !== 0;
+  list.hidden = rows.size === 0;
+  empty.hidden = rows.size !== 0;
 }
 
 let inFlight = false;

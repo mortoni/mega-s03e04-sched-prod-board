@@ -22,3 +22,11 @@ footer { color: #777; font-size: 13px; }
 .empty { padding: 16px 12px; color: #555; }
 .error { padding: 8px 12px; color: #b00020; }
 footer [data-testid="build-sha"] { font-family: ui-monospace, monospace; }
+[hidden] { display: none !important; }
+.confirm { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.35); }
+.confirm-card { width: min(420px, calc(100vw - 32px)); padding: 20px 24px; border-radius: 10px; background: #fff; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25); }
+.confirm-text { margin: 0 0 4px; font-size: 18px; font-weight: 600; font-family: ui-monospace, monospace; }
+.confirm-what { margin: 0 0 16px; color: #555; }
+.confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.confirm-actions button { font: inherit; padding: 6px 16px; border: 1px solid #c7c7cc; border-radius: 6px; background: #fff; cursor: pointer; }
+.confirm-actions .primary { background: #1d1d1f; border-color: #1d1d1f; color: #fff; }

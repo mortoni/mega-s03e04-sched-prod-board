@@ -14,9 +14,13 @@ what just broke and takes it.
 ## Requirements
 
 - **R1** New incidents appear live at the top of the list, newest first.
-- **R2** Each incident row has an **Ack** button. Ack sends the ack (`api.ack(id)`) and marks the row acked.
+- **R2** Each incident row has an **Ack** button. Ack opens a confirm that names the incident id ("Ack INC-1234?");
+  only **Ack** in the confirm sends the ack (`api.ack(id)`, for the id the confirm names) and marks the row acked.
+  **Cancel**, Esc or a click outside closes it and sends nothing. *(Changed 2026-11-13, product's decision after the
+  step-1 report: new incidents stay live at the top and Ack stays on the row, but Ack asks to confirm. SCHED-4515.)*
 - **R3** Show a loader until incidents load.
-- **R4** The board refreshes itself every 2 seconds while open.
+- **R4** The board refreshes itself every 2 seconds while open. A refresh only adds new incidents; it never moves or
+  takes off a row already on the board.
 - **R5** Times show in the viewer's local time; day before month for EU locales (dd/mm).
 - **R6** The page names its build: `<meta name="build" content="<git sha>">` in the head and the same sha in the footer.
 
@@ -32,6 +36,9 @@ what just broke and takes it.
 | `ack` | the Ack button in a row |
 | `acked` | the acked mark in a row |
 | `build-sha` | the sha in the footer |
+| `confirm` | the ack confirm, naming the incident id (added by SCHED-4515) |
+| `confirm-ack` | the confirm's Ack button: sends the ack for the named id |
+| `confirm-cancel` | the confirm's Cancel button: sends nothing |
 
 ## Done
 
